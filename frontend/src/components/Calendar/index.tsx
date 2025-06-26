@@ -17,19 +17,13 @@ const Calendar = () => {
   const [notes, setNotes] = useState<DayData[]>([]);
   const [inputNotes, setInputNotes] = useState<string[]>([]);
 
+  // const today = moment().add(1, "month"); // or subtract
+
   const today = moment();
   const startOfMonth = today.clone().startOf("month");
   const endOfMonth = today.clone().endOf("month");
   const startDate = startOfMonth.clone().startOf("week");
   const endDate = endOfMonth.clone().endOf("week");
-
-  useEffect(() => {
-    if (selectedDate) {
-      const dateKey = moment(selectedDate).format("YYYY-MM-DD");
-      const day = notes.find((n) => n.date === dateKey);
-      setInputNotes(day?.note ?? [""]);
-    }
-  }, [selectedDate, notes]);
 
   const handleNoteChange = (index: number, value: string) => {
     const updated = [...inputNotes];
@@ -46,7 +40,7 @@ const Calendar = () => {
 
     const dateKey = moment(selectedDate).format("YYYY-MM-DD");
 
-    const newNotes = [...inputNotes]; // e.g., ["note3", ""]
+    const newNotes = [...inputNotes];
 
     setNotes((prevNotes) => {
       const existing = prevNotes.find((n) => n.date === dateKey);
@@ -75,6 +69,7 @@ const Calendar = () => {
 
     while (day.isSameOrBefore(endDate, "day")) {
       const dateKey = day.format("YYYY-MM-DD");
+
       const currentNote = notes.find((n) => n.date === dateKey);
       const hasData =
         currentNote && currentNote.note.some((n) => n.trim() !== "");
@@ -89,12 +84,15 @@ const Calendar = () => {
             backgroundColor: !isCurrentMonth
               ? "#f0f0f0"
               : hasData
-              ? "#d1fae5"
+              ? "#15a55b"
               : "#fff",
             color: !isCurrentMonth ? "#aaa" : "#000",
           }}
           // onClick={() => setSelectedDate(day.clone())}
-          onClick={() => setSelectedDate(day.format("YYYY-MM-DD"))}
+          onClick={() => {
+            console.log("Selected date:", dateKey);
+            setSelectedDate(dateKey);
+          }}
         >
           {day.date()}
         </div>
@@ -106,7 +104,15 @@ const Calendar = () => {
     return days;
   };
 
-  console.log(notes);
+  useEffect(() => {
+    if (selectedDate) {
+      const dateKey = moment(selectedDate).format("YYYY-MM-DD");
+      const day = notes.find((n) => n.date === dateKey);
+      setInputNotes(day?.note ?? [""]);
+    }
+  }, [selectedDate, notes]);
+
+  // console.log(notes);
 
   return (
     <div style={{ padding: "16px" }}>
