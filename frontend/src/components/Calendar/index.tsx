@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import moment from "moment";
 
+import { DEFAULT_FORMAT } from "../../constants/date";
+
 import { calendarGrid, dayCell, modalBackdrop, modalBox } from "./styles";
 
 interface DayData {
@@ -12,15 +14,14 @@ interface DayData {
 // interface CalendarProps {}
 
 const Calendar = () => {
-  //
-  // const [selectedDate, setSelectedDate] = useState<moment.Moment | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [notes, setNotes] = useState<DayData[]>([]);
   const [inputNotes, setInputNotes] = useState<string[]>([]);
 
   // const today = moment().add(1, "month"); // or subtract
+  const [currentDate, setCurrentDate] = useState<moment.Moment>(moment());
 
-  const today = moment();
+  const today = currentDate;
   const startOfMonth = today.clone().startOf("month");
   const endOfMonth = today.clone().endOf("month");
   const startDate = startOfMonth.clone().startOf("week");
@@ -39,7 +40,7 @@ const Calendar = () => {
   const saveNote = () => {
     if (!selectedDate) return;
 
-    const dateKey = moment(selectedDate).format("YYYY-MM-DD");
+    const dateKey = moment(selectedDate).format(DEFAULT_FORMAT);
 
     const newNotes = [...inputNotes];
 
@@ -69,7 +70,7 @@ const Calendar = () => {
     const day = startDate.clone();
 
     while (day.isSameOrBefore(endDate, "day")) {
-      const dateKey = day.format("YYYY-MM-DD");
+      const dateKey = day.format(DEFAULT_FORMAT)
 
       const currentNote = notes.find((n) => n.date === dateKey);
       const hasData =
@@ -89,11 +90,7 @@ const Calendar = () => {
               : "#fff",
             color: !isCurrentMonth ? "#aaa" : "#000",
           }}
-          // onClick={() => setSelectedDate(day.clone())}
-          onClick={() => {
-            console.log("Selected date:", dateKey);
-            setSelectedDate(dateKey);
-          }}
+          onClick={() => setSelectedDate(dateKey)}
         >
           {day.date()}
         </div>
@@ -107,20 +104,24 @@ const Calendar = () => {
 
   useEffect(() => {
     if (selectedDate) {
-      const dateKey = moment(selectedDate).format("YYYY-MM-DD");
+      const dateKey = moment(selectedDate).format(DEFAULT_FORMAT);
       const day = notes.find((n) => n.date === dateKey);
       setInputNotes(day?.note ?? [""]);
     }
   }, [selectedDate, notes]);
 
-  // console.log(notes);
-
   return (
+    <>
+   
     <div style={{ padding: "16px" }}>
       <h1 style={{ textAlign: "center", fontSize: "20px" }}>
         Exercise Tracker
       </h1>
-
+      <span>-</span>
+      <span onClick={() => {
+        setCurrentDate(currentDate.add(1, 'month'));
+        console.log(currentDate);
+        }}>+</span>
       <div style={calendarGrid}>{renderDays()}</div>
 
       {selectedDate && (
@@ -170,6 +171,8 @@ const Calendar = () => {
         </div>
       )}
     </div>
+  
+    </>
   );
 };
 
