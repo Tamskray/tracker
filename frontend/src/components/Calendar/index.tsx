@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import moment from "moment";
 
+import { getCalendarRange } from "../../utils/date";
 import { DEFAULT_FORMAT } from "../../constants/date";
 
 import { calendarGrid, dayCell, modalBackdrop, modalBox } from "./styles";
@@ -18,19 +19,13 @@ const Calendar = () => {
   const [notes, setNotes] = useState<DayData[]>([]);
   const [inputNotes, setInputNotes] = useState<string[]>([]);
 
-  // const today = moment().add(1, "month"); // or subtract
   const [currentDate, setCurrentDate] = useState<moment.Moment>(moment());
-
-  const today = currentDate;
-  const startOfMonth = today.clone().startOf("month");
-  const endOfMonth = today.clone().endOf("month");
-  const startDate = startOfMonth.clone().startOf("week");
-  const endDate = endOfMonth.clone().endOf("week");
+  const { startDate, endDate } = getCalendarRange(currentDate);
 
   const handleNoteChange = (index: number, value: string) => {
-    const updated = [...inputNotes];
-    updated[index] = value;
-    setInputNotes(updated);
+    setInputNotes((notes) =>
+      notes.map((note, i) => (i === index ? value : note))
+    );
   };
 
   const addNewNoteLine = () => {
@@ -42,19 +37,14 @@ const Calendar = () => {
 
     const dateKey = moment(selectedDate).format(DEFAULT_FORMAT);
 
-    const newNotes = [...inputNotes];
+    const newNotes = inputNotes.filter((n) => n.trim() !== "");
 
     setNotes((prevNotes) => {
       const existing = prevNotes.find((n) => n.date === dateKey);
 
       if (existing) {
         return prevNotes.map((n) =>
-          n.date === dateKey
-            ? {
-                ...n,
-                note: [...n.note, ...newNotes],
-              }
-            : n
+          n.date === dateKey ? { ...n, note: newNotes } : n
         );
       } else {
         return [...prevNotes, { date: dateKey, note: newNotes }];
@@ -70,13 +60,13 @@ const Calendar = () => {
     const day = startDate.clone();
 
     while (day.isSameOrBefore(endDate, "day")) {
-      const dateKey = day.format(DEFAULT_FORMAT)
+      const dateKey = day.format(DEFAULT_FORMAT);
 
       const currentNote = notes.find((n) => n.date === dateKey);
       const hasData =
         currentNote && currentNote.note.some((n) => n.trim() !== "");
 
-      const isCurrentMonth = day.month() === today.month();
+      const isCurrentMonth = day.month() === currentDate.month();
 
       days.push(
         <div
@@ -106,72 +96,96 @@ const Calendar = () => {
     if (selectedDate) {
       const dateKey = moment(selectedDate).format(DEFAULT_FORMAT);
       const day = notes.find((n) => n.date === dateKey);
-      setInputNotes(day?.note ?? [""]);
+      setInputNotes(day?.note ?? []);
     }
   }, [selectedDate, notes]);
 
   return (
     <>
-   
-    <div style={{ padding: "16px" }}>
-      <h1 style={{ textAlign: "center", fontSize: "20px" }}>
-        Exercise Tracker
-      </h1>
-      <span>-</span>
-      <span onClick={() => {
-        setCurrentDate(currentDate.add(1, 'month'));
-        console.log(currentDate);
-        }}>+</span>
-      <div style={calendarGrid}>{renderDays()}</div>
+      <div style={{ padding: "16px" }}>
+        <h1 style={{ textAlign: "center", fontSize: "20px" }}>
+          Exercise Tracker
+        </h1>
+        <span
+          onClick={() =>
+            setCurrentDate(currentDate.clone().subtract(1, "month"))
+          }
+        >
+          -
+        </span>
+        <span
+          onClick={() => setCurrentDate(currentDate.clone().add(1, "month"))}
+        >
+          +
+        </span>
+        <div style={calendarGrid}>{renderDays()}</div>
 
-      {selectedDate && (
-        <div style={modalBackdrop}>
-          <div style={modalBox}>
-            <h3>Notes for {moment(selectedDate).format("MMMM D, YYYY")}</h3>
+        {selectedDate && (
+          <div style={modalBackdrop}>
+            <div style={modalBox}>
+              <h3>Notes for {moment(selectedDate).format("MMMM D, YYYY")}</h3>
 
-            {inputNotes.map((note, i) => (
-              <input
-                key={i}
-                value={note}
-                onChange={(e) => handleNoteChange(i, e.target.value)}
-                placeholder={`Note ${i + 1}`}
-                style={{
-                  width: "100%",
-                  marginTop: "8px",
-                  padding: "6px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-            ))}
+              {inputNotes.length ? (
+                <>
+                  {inputNotes.map((note, i) => (
+                    <input
+                      key={i}
+                      value={note}
+                      onChange={(e) => handleNoteChange(i, e.target.value)}
+                      placeholder={`Note ${i + 1}`}
+                      style={{
+                        width: "100%",
+                        marginTop: "8px",
+                        padding: "6px",
+                        border: "1px solid #ccc",
+                        borderRadius: "4px",
+                      }}
+                    />
+                  ))}
+                  <button
+                    onClick={addNewNoteLine}
+                    style={{
+                      marginTop: "10px",
+                      backgroundColor: "#eee",
+                      border: "none",
+                      padding: "6px 10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    + Add Line
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p>No notes yet</p>
+                  <button
+                    onClick={addNewNoteLine}
+                    style={{
+                      marginTop: "10px",
+                      backgroundColor: "#eee",
+                      border: "none",
+                      padding: "6px 10px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    + Add First Note
+                  </button>
+                </>
+              )}
 
-            <button
-              onClick={addNewNoteLine}
-              style={{
-                marginTop: "10px",
-                backgroundColor: "#eee",
-                border: "none",
-                padding: "6px 10px",
-                cursor: "pointer",
-              }}
-            >
-              + Add Line
-            </button>
-
-            <div style={{ marginTop: "12px", textAlign: "right" }}>
-              <button
-                onClick={() => setSelectedDate(null)}
-                style={{ marginRight: "8px" }}
-              >
-                Cancel
-              </button>
-              <button onClick={saveNote}>Save</button>
+              <div style={{ marginTop: "12px", textAlign: "right" }}>
+                <button
+                  onClick={() => setSelectedDate(null)}
+                  style={{ marginRight: "8px" }}
+                >
+                  Cancel
+                </button>
+                <button onClick={saveNote}>Save</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  
+        )}
+      </div>
     </>
   );
 };
