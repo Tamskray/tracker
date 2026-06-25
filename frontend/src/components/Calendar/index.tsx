@@ -23,9 +23,7 @@ const Calendar = () => {
   const { startDate, endDate } = getCalendarRange(currentDate);
 
   const handleNoteChange = (index: number, value: string) => {
-    setInputNotes((notes) =>
-      notes.map((note, i) => (i === index ? value : note))
-    );
+    setInputNotes((notes) => notes.map((note, i) => (i === index ? value : note)));
   };
 
   const addNewNoteLine = () => {
@@ -43,9 +41,7 @@ const Calendar = () => {
       const existing = prevNotes.find((n) => n.date === dateKey);
 
       if (existing) {
-        return prevNotes.map((n) =>
-          n.date === dateKey ? { ...n, note: newNotes } : n
-        );
+        return prevNotes.map((n) => (n.date === dateKey ? { ...n, note: newNotes } : n));
       } else {
         return [...prevNotes, { date: dateKey, note: newNotes }];
       }
@@ -63,8 +59,7 @@ const Calendar = () => {
       const dateKey = day.format(DEFAULT_FORMAT);
 
       const currentNote = notes.find((n) => n.date === dateKey);
-      const hasData =
-        currentNote && currentNote.note.some((n) => n.trim() !== "");
+      const hasData = currentNote && currentNote.note.some((n) => n.trim() !== "");
 
       const isCurrentMonth = day.month() === currentDate.month();
 
@@ -73,17 +68,13 @@ const Calendar = () => {
           key={dateKey}
           style={{
             ...dayCell,
-            backgroundColor: !isCurrentMonth
-              ? "#f0f0f0"
-              : hasData
-              ? "#15a55b"
-              : "#fff",
+            backgroundColor: !isCurrentMonth ? "#f0f0f0" : hasData ? "#15a55b" : "#fff",
             color: !isCurrentMonth ? "#aaa" : "#000",
           }}
           onClick={() => setSelectedDate(dateKey)}
         >
           {day.date()}
-        </div>
+        </div>,
       );
 
       day.add(1, "day");
@@ -103,21 +94,9 @@ const Calendar = () => {
   return (
     <>
       <div style={{ padding: "16px" }}>
-        <h1 style={{ textAlign: "center", fontSize: "20px" }}>
-          Exercise Tracker
-        </h1>
-        <span
-          onClick={() =>
-            setCurrentDate(currentDate.clone().subtract(1, "month"))
-          }
-        >
-          -
-        </span>
-        <span
-          onClick={() => setCurrentDate(currentDate.clone().add(1, "month"))}
-        >
-          +
-        </span>
+        <h1 style={{ textAlign: "center", fontSize: "20px" }}>Exercise Tracker</h1>
+        <span onClick={() => setCurrentDate(currentDate.clone().subtract(1, "month"))}>-</span>
+        <span onClick={() => setCurrentDate(currentDate.clone().add(1, "month"))}>+</span>
         <div style={calendarGrid}>{renderDays()}</div>
 
         {selectedDate && (
@@ -162,7 +141,7 @@ const Calendar = () => {
                     onClick={addNewNoteLine}
                     style={{
                       marginTop: "10px",
-                      backgroundColor: "#eee",
+                      backgroundColor: "#e6a5a5",
                       border: "none",
                       padding: "6px 10px",
                       cursor: "pointer",
@@ -174,10 +153,7 @@ const Calendar = () => {
               )}
 
               <div style={{ marginTop: "12px", textAlign: "right" }}>
-                <button
-                  onClick={() => setSelectedDate(null)}
-                  style={{ marginRight: "8px" }}
-                >
+                <button onClick={() => setSelectedDate(null)} style={{ marginRight: "8px" }}>
                   Cancel
                 </button>
                 <button onClick={saveNote}>Save</button>
