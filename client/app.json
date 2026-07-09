@@ -3,9 +3,7 @@
     "name": "client",
     "slug": "client",
     "version": "1.0.0",
-    "plugins": [
-      "expo-notifications"
-    ],
+    "plugins": ["expo-notifications"],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -20,10 +18,15 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.client"
+      "package": "com.tamskray.exercisetracker"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "965a8ef8-6d8c-4ec2-9a1c-37bf85cb48fa"
+      }
     }
   }
 }
